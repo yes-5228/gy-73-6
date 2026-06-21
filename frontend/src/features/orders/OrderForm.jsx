@@ -6,6 +6,7 @@ const initialState = {
   customer_phone: "",
   origin: "",
   destination: "",
+  service_area: "",
   move_date: "",
   move_time: "09:00",
   items: "",
@@ -42,6 +43,10 @@ export default function OrderForm({ onCreate }) {
         <label>
           联系电话
           <input value={form.customer_phone} onChange={(e) => update("customer_phone", e.target.value)} required />
+        </label>
+        <label>
+          服务区域
+          <input value={form.service_area} onChange={(e) => update("service_area", e.target.value)} placeholder="如：浦东新区" />
         </label>
         <label>
           搬出地址

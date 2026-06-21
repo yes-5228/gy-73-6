@@ -8,13 +8,28 @@ const seedWorkers = [
   { name: "李师傅", phone: "13800000002", vehicle: "金杯面包车", service_area: "徐汇区", rating: 4.8 },
 ];
 
+const EMPTY_FILTERS = {
+  move_date_from: "",
+  move_date_to: "",
+  service_area: "",
+  worker_id: "",
+  status: "",
+  has_exception: "",
+};
+
 export default function App() {
   const [orders, setOrders] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [error, setError] = useState("");
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+
+  async function refreshOrders(currentFilters = filters) {
+    const orderData = await api.listOrders(currentFilters);
+    setOrders(orderData.orders);
+  }
 
   async function refresh() {
-    const [orderData, workerData] = await Promise.all([api.listOrders(), api.listWorkers()]);
+    const [orderData, workerData] = await Promise.all([api.listOrders(filters), api.listWorkers()]);
     setOrders(orderData.orders);
     setWorkers(workerData.workers);
     if (workerData.workers.length === 0) {
@@ -28,15 +43,32 @@ export default function App() {
     try {
       setError("");
       await action();
-      await refresh();
+      await refreshOrders();
     } catch (err) {
       setError(err.message);
     }
   }
 
+  function handleSetFilters(next) {
+    setFilters(next);
+  }
+
+  function handleResetFilters() {
+    setFilters(EMPTY_FILTERS);
+  }
+
+  function handleExport() {
+    const url = api.exportOrders(filters);
+    window.open(url, "_blank");
+  }
+
   useEffect(() => {
     run(async () => refresh());
   }, []);
+
+  useEffect(() => {
+    refreshOrders();
+  }, [filters]);
 
   return (
     <>
@@ -50,6 +82,10 @@ export default function App() {
         onAssign={(orderId, workerId) => run(() => api.assignOrder(orderId, workerId))}
         onProgress={(orderId, payload) => run(() => api.addProgress(orderId, payload))}
         onReview={(orderId, payload) => run(() => api.createReview(orderId, payload))}
+        filters={filters}
+        setFilters={handleSetFilters}
+        onResetFilters={handleResetFilters}
+        onExport={handleExport}
       />
     </>
   );

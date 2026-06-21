@@ -1,5 +1,14 @@
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
+function buildQueryString(params) {
+  if (!params) return "";
+  const entries = Object.entries(params).filter(
+    ([, value]) => value !== undefined && value !== null && value !== ""
+  );
+  if (entries.length === 0) return "";
+  return "?" + entries.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join("&");
+}
+
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE}${path}`, {
     headers: {
@@ -18,7 +27,8 @@ async function request(path, options = {}) {
 
 export const api = {
   health: () => request("/health/"),
-  listOrders: () => request("/orders/"),
+  listOrders: (filters) => request(`/orders/${buildQueryString(filters)}`),
+  exportOrders: (filters) => `${API_BASE}/orders/export/${buildQueryString(filters)}`,
   createOrder: (payload) => request("/orders/", { method: "POST", body: JSON.stringify(payload) }),
   claimOrder: (orderId, workerId) =>
     request(`/orders/${orderId}/claim/`, { method: "POST", body: JSON.stringify({ worker_id: workerId }) }),

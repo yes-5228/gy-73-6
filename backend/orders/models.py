@@ -19,11 +19,13 @@ class MoveOrder(models.Model):
     customer_phone = models.CharField(max_length=30)
     origin = models.CharField(max_length=160)
     destination = models.CharField(max_length=160)
+    service_area = models.CharField(max_length=120, blank=True, default="")
     move_date = models.DateField()
     move_time = models.TimeField()
     items = models.TextField(blank=True)
     note = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    has_exception = models.BooleanField(default=False)
     claimed_by = models.ForeignKey(
         "workers.Worker",
         related_name="claimed_orders",

@@ -14,6 +14,10 @@ export default function Dashboard({
   onAssign,
   onProgress,
   onReview,
+  filters,
+  setFilters,
+  onResetFilters,
+  onExport,
 }) {
   const stats = [
     ["待处理订单", orders.filter((order) => order.status !== "completed").length],
@@ -44,7 +48,16 @@ export default function Dashboard({
         <div className="layout-grid">
           <OrderForm onCreate={onCreateOrder} />
           <WorkerPanel workers={workers} onCreate={onCreateWorker} />
-          <OrderBoard orders={orders} workers={workers} onClaim={onClaim} onAssign={onAssign} />
+          <OrderBoard
+            orders={orders}
+            workers={workers}
+            onClaim={onClaim}
+            onAssign={onAssign}
+            filters={filters}
+            setFilters={setFilters}
+            onResetFilters={onResetFilters}
+            onExport={onExport}
+          />
           <div className="side-stack">
             <TrackingPanel orders={orders} onProgress={onProgress} />
             <ReviewPanel orders={orders} onReview={onReview} />
